@@ -1,7 +1,7 @@
 package pl.javaschool.java9maven.service;
 
 import pl.javaschool.java9maven.dao.CustomerDao;
-import pl.javaschool.java9maven.model.Customer;
+import pl.javaschool.java9maven.dao.Customer;
 
 public class CustomerService {
     private final CustomerDao customerDao;

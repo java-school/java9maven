@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import pl.javaschool.java9maven.dao.CustomerDao;
-import pl.javaschool.java9maven.model.Customer;
+import pl.javaschool.java9maven.dao.Customer;
 
 public class CustomerServiceTest {
 

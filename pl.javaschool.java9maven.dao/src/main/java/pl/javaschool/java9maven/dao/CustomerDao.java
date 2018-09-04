@@ -1,7 +1,5 @@
 package pl.javaschool.java9maven.dao;
 
-import pl.javaschool.java9maven.model.Customer;
-
 import java.util.List;
 
 public interface CustomerDao {

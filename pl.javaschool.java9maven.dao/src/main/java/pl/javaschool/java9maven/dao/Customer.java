@@ -1,4 +1,4 @@
-package pl.javaschool.java9maven.model;
+package pl.javaschool.java9maven.dao;
 
 import java.util.Objects;
 
