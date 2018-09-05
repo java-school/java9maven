@@ -1,12 +1,12 @@
 package pl.javaschool.java9maven.service;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import pl.javaschool.java9maven.dao.CustomerDao;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import pl.javaschool.java9maven.dao.Customer;
+import pl.javaschool.java9maven.dao.CustomerDao;
 
-public class CustomerServiceTest {
+class CustomerServiceTest {
 
     private static final String GIVEN_CUSTOMER_PESEL = "90051603345";
     private static final String NON_EXISTING_CUSTOMER_PESEL = "11111111111";
@@ -14,31 +14,35 @@ public class CustomerServiceTest {
 
     private CustomerService customerService;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         customerDao = InMemoryCustomerDao.getCustomerDao();
         customerService = new CustomerService(customerDao);
     }
 
     @Test
-    public void shouldAddNewCustomerToDatabase() {
+    void shouldAddNewCustomerToDatabase() {
         Customer customer = givenCustomer();
         customerService.createNewCustomer(customer);
-        Assert.assertTrue(customerDao.getCustomers().contains(customer));
+        Assertions.assertTrue(customerDao.getCustomers().contains(customer));
     }
 
     @Test
-    public void shouldRetrieveExistingCustomerFromDatabase() throws CustomerNotFoundException {
+    void shouldRetrieveExistingCustomerFromDatabase() throws CustomerNotFoundException {
         Customer givenCustomer = givenCustomer();
         customerDao.addCustomer(givenCustomer);
 
         Customer customer = customerService.getCustomer(GIVEN_CUSTOMER_PESEL);
-        Assert.assertEquals(givenCustomer, customer);
+        Assertions.assertEquals(givenCustomer, customer);
     }
 
-    @Test(expected = CustomerNotFoundException.class)
-    public void shouldThrowExceptionWhenCustomerNotFound() throws CustomerNotFoundException {
-        customerService.getCustomer(NON_EXISTING_CUSTOMER_PESEL);
+    @Test
+    void shouldThrowExceptionWhenCustomerNotFound() {
+        Assertions.assertThrows(
+                CustomerNotFoundException.class,
+                () -> customerService.getCustomer(NON_EXISTING_CUSTOMER_PESEL)
+        );
+
     }
 
     private Customer givenCustomer() {

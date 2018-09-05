@@ -1,13 +1,13 @@
 package pl.javaschool.java9maven.dao;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
-public class CustomerTest {
+class CustomerTest {
 
     @Test
-    public void dummyTest() {
-        Assert.assertTrue(true);
+    void dummyTest() {
+        Assertions.assertTrue(true);
     }
 
 }
