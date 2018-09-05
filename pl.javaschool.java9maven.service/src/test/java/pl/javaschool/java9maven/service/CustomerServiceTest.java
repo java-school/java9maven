@@ -1,10 +1,12 @@
 package pl.javaschool.java9maven.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.javaschool.java9maven.dao.Customer;
 import pl.javaschool.java9maven.dao.CustomerDao;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CustomerServiceTest {
 
@@ -24,7 +26,8 @@ class CustomerServiceTest {
     void shouldAddNewCustomerToDatabase() {
         Customer customer = givenCustomer();
         customerService.createNewCustomer(customer);
-        Assertions.assertTrue(customerDao.getCustomers().contains(customer));
+        assertThat(customerDao.getCustomers())
+                .containsOnly(customer);
     }
 
     @Test
@@ -33,16 +36,14 @@ class CustomerServiceTest {
         customerDao.addCustomer(givenCustomer);
 
         Customer customer = customerService.getCustomer(GIVEN_CUSTOMER_PESEL);
-        Assertions.assertEquals(givenCustomer, customer);
+        assertThat(customer).isEqualTo(givenCustomer);
     }
 
     @Test
     void shouldThrowExceptionWhenCustomerNotFound() {
-        Assertions.assertThrows(
-                CustomerNotFoundException.class,
-                () -> customerService.getCustomer(NON_EXISTING_CUSTOMER_PESEL)
-        );
-
+        assertThatThrownBy(() -> customerService.getCustomer(NON_EXISTING_CUSTOMER_PESEL))
+                .isInstanceOf(CustomerNotFoundException.class)
+                .hasMessage("Customer not found");
     }
 
     private Customer givenCustomer() {
