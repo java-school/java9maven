@@ -1,52 +1,80 @@
 package pl.javaschool.java9maven.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import pl.javaschool.java9maven.dao.Customer;
 import pl.javaschool.java9maven.dao.CustomerDao;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 class CustomerServiceTest {
 
     private static final String GIVEN_CUSTOMER_PESEL = "90051603345";
     private static final String NON_EXISTING_CUSTOMER_PESEL = "11111111111";
+    private static final String ANY_PESEL = "22222222222";
+
+    @Mock
     private CustomerDao customerDao;
 
+    @InjectMocks
     private CustomerService customerService;
 
-    @BeforeEach
-    void setUp() {
-        customerDao = InMemoryCustomerDao.getCustomerDao();
-        customerService = new CustomerService(customerDao);
+    @Test
+    void shouldRetrieveExistingCustomerFromDatabase() throws CustomerNotFoundException {
+        //given
+        Customer givenCustomer = givenCustomerWithPesel(GIVEN_CUSTOMER_PESEL);
+        givenCustomerDaoWillReturn(
+                givenCustomer,
+                givenCustomerWithPesel(ANY_PESEL)
+        );
+        //when
+        Customer expectedCustomer = customerService.getCustomer(GIVEN_CUSTOMER_PESEL);
+        //then
+        assertThat(expectedCustomer).isEqualTo(givenCustomer);
     }
 
     @Test
     void shouldAddNewCustomerToDatabase() {
-        Customer customer = givenCustomer();
-        customerService.createNewCustomer(customer);
-        assertThat(customerDao.getCustomers())
-                .containsOnly(customer);
+        //given
+        Customer givenCustomer = givenCustomerWithPesel(GIVEN_CUSTOMER_PESEL);
+        //when
+        customerService.createNewCustomer(givenCustomer);
+        //then
+        assertThatCustomerDaoContainsOnly(givenCustomer);
     }
 
-    @Test
-    void shouldRetrieveExistingCustomerFromDatabase() throws CustomerNotFoundException {
-        Customer givenCustomer = givenCustomer();
-        customerDao.addCustomer(givenCustomer);
-
-        Customer customer = customerService.getCustomer(GIVEN_CUSTOMER_PESEL);
-        assertThat(customer).isEqualTo(givenCustomer);
-    }
 
     @Test
     void shouldThrowExceptionWhenCustomerNotFound() {
-        assertThatThrownBy(() -> customerService.getCustomer(NON_EXISTING_CUSTOMER_PESEL))
-                .isInstanceOf(CustomerNotFoundException.class)
+        //given
+        givenCustomerDaoWillReturn(
+                givenCustomerWithPesel(GIVEN_CUSTOMER_PESEL),
+                givenCustomerWithPesel(ANY_PESEL)
+        );
+        //when
+        Throwable thrown = catchThrowable(() -> customerService.getCustomer(NON_EXISTING_CUSTOMER_PESEL));
+        //then
+        assertThat(thrown).isInstanceOf(CustomerNotFoundException.class)
                 .hasMessage("Customer not found");
     }
 
-    private Customer givenCustomer() {
-        return new Customer(GIVEN_CUSTOMER_PESEL, "Jan", "Nowak", 27);
+    private Customer givenCustomerWithPesel(String pesel) {
+        return new Customer(pesel, "Jan", "Nowak", 27);
+    }
+
+    private void assertThatCustomerDaoContainsOnly(Customer givenCustomer) {
+        verify(customerDao).addCustomer(givenCustomer);
+    }
+
+    private void givenCustomerDaoWillReturn(Customer... givenCustomer) {
+        given(customerDao.getCustomers()).willReturn(asList(givenCustomer));
     }
 }
